@@ -1,0 +1,79 @@
+# Perspicacity v1 — full fixture (game-like warehouse scene)
+SCENE 11 objects 2 lights 1100W BLENDER_EEVEE ground_z=0
+CAM PlayerCam [0,2,8] 35mm
+LIGHT Overhead AREA 800W [1,0.98,0.95] [0,5,0]
+LIGHT Spot1 SPOT 300W [1,0.9,0.8] [4,3,2]
+OBJ Crate_A [1,0,2] 12% mid-right d=6.3m Wood(rgb=0.55,0.40,0.25,rough=0.8) dim=[1,1,1] rot=[0,0,15] facing=NE zone=storage face=+Z lum=0.7 has_uv
+OBJ Crate_B [1,1,2] 8% top-right d=6.5m Wood(rgb=0.55,0.40,0.25,rough=0.8) dim=[1,1,1] zone=storage face=+Z lum=0.65 has_uv
+OBJ Barrel [-2,0,3] 10% mid-left d=5.8m Metal(rgb=0.30,0.30,0.32,metal=0.8,rough=0.6) dim=[0.6,0.6,0.9] rot=[5,0,0] facing=N zone=storage face=+Z lum=0.5 has_uv
+OBJ Forklift [3,0,0] 18% mid-right d=8.2m Paint(rgb=0.90,0.70,0.10,rough=0.4) dim=[2.5,1.2,2] rot=[0,0,90] facing=E zone=dock face=-X lum=0.6 has_uv
+OBJ Guard [-1,0,6] 6% mid-center d=2.5m Cloth(rgb=0.20,0.20,0.25,rough=0.9) dim=[0.5,0.3,1.8] zone=patrol face=+Z lum=0.4 has_uv
+OBJ Rifle [-0.8,1.2,6] 2% mid-center d=2.6m Metal(rgb=0.15,0.15,0.15,metal=1.0,rough=0.3) dim=[0.05,0.05,0.9] face=+Z lum=0.3 has_uv
+OBJ GlassCase [2,0,5] 5% mid-right d=4m Glass(ior=1.45) dim=[0.6,0.6,1.2] zone=storage transparent has_uv contains:[Artifact]
+OBJ Artifact [2,0.1,5] 1% mid-right d=4.1m Gold(rgb=0.90,0.80,0.20,metal=1.0,rough=0.1) dim=[0.1,0.1,0.2] zone=storage lum=0.8 has_uv inside=GlassCase
+OBJ Floor [0,0,0] 30% bot-center d=8.5m Concrete(textured) dim=[20,20,0.3] no_uv
+OBJ Ceiling [0,6,0] 20% top-center d=10m Concrete(textured) dim=[20,20,0.3] no_uv
+OBJ Wall_N [0,3,-5] 15% mid-center d=13m Brick(textured) dim=[20,0.3,6] no_uv
+SGROUP "Crates" [1,0.5,2] dim=[1,1,2] top=3 Wood facing=NE members=2
+ASSEMBLY "Display" members=[GlassCase,Artifact] center=[2,0.05,5] types=MESH
+REL Crate_A->Crate_B 1m below aabb_overlap=8% contact
+REL Crate_A->Floor 0m below contact
+REL Crate_A->Barrel 3.2m left same_level
+REL Barrel->Floor 0m below contact
+REL Guard->Floor 0m below contact
+REL Guard->Crate_A 4.5m right same_level
+REL Rifle->Guard 0.3m right same_level
+REL Forklift->Floor 0m below contact
+REL Forklift->Wall_N 5.5m behind same_level
+REL GlassCase->Floor 0m below contact
+REL Artifact->GlassCase 0m below overlap=80% aabb_overlap=95%
+VERIFY FAIL Wall_N subdivide requested 4 cuts but mesh still has 4 faces
+CONTAIN GlassCase contains Artifact full
+SPATIAL Barrel bbox_below_surface surface=Floor surface_z=0.0 penetration=0.02 pct=2
+SPATIAL Wall_N scale_ratio ratio=66.7 axes=[20,0.3,6]
+LIT Overhead->Crate_A @15° i=0.9
+LIT Overhead->Barrel @22° i=0.82
+LIT Overhead->Guard @10° i=0.95
+LIT Overhead->Floor @0° i=1
+LIT Spot1->Forklift @35° i=0.6
+LIT Spot1->Crate_A @50° i=0.4
+SHAD Overhead->Floor 8% casters:Crate_A,Crate_B,Barrel contact
+SHAD Overhead->Floor 3% casters:Guard contact
+SHAD Spot1->Floor 5% casters:Forklift gap=0.1m
+MAT Wood: warm brown rough wood
+MAT Metal: dark metallic -- needs env reflections
+MAT Paint: yellow industrial paint
+MAT Cloth: dark tactical fabric
+MAT Concrete: textured concrete
+MAT Brick: red brick wall -- needs normal map
+MAT Glass: clear glass container
+MAT Gold: polished gold ornament
+HARMONY types=wood+metal+paint+cloth+concrete+brick+glass+gold temp=warm
+PALETTE lum=0.45 warm_brown dark_grey steel_blue
+WORLD bg=[0.02,0.02,0.03] strength=0.5
+PHYS Crate_A dynamic mass=25kg sleeping
+PHYS Crate_B dynamic mass=25kg sleeping
+PHYS Barrel dynamic mass=40kg sleeping
+PHYS Forklift kinematic mass=2000kg vel=[0,0,0]
+PHYS Guard kinematic mass=80kg vel=[0,0,0.5]
+PHYS Floor static mass=0kg sleeping
+CONTACT Crate_A<>Floor normal=[0,0,1] force=245.3N surface=concrete
+CONTACT Crate_B<>Crate_A normal=[0,0,1] force=245.3N surface=wood
+CONTACT Barrel<>Floor normal=[0,0,1] force=392.4N surface=concrete
+CONTACT Guard<>Floor normal=[0,0,1] force=784.8N surface=concrete
+SND Forklift type=point vol=0.4 dist=8.2m dir=right occ=0
+SND Radio type=point vol=0.2 dist=5m dir=left occ=0.6
+SND Ambience type=ambient vol=0.15 dist=0m dir=above occ=0
+COMP thirds=0.65 11/11_visible balance=0.55 depth=3/3 edge:[Floor,Ceiling]
+RAY 12x12 Crate_A=10% Crate_B=7% Barrel=9% Forklift=16% Guard=5% Rifle=2% GlassCase=4% Artifact=1% Floor=28% Ceiling=5% Wall_N=4% empty=9%
+MVIEW front: Crate_A=12% Barrel=10% Guard=8% Floor=35%
+MVIEW top: Floor=60% Crate_A=5% Barrel=4% Forklift=12% Guard=3%
+HIER Crate_B > Crate_A
+HIER Rifle > Guard
+HIER Artifact > GlassCase
+GRP Storage: Crate_A, Crate_B, Barrel, GlassCase, Artifact
+GRP Characters: Guard
+GRP Vehicles: Forklift
+GRP Structure: Floor, Ceiling, Wall_N
+ANIM Guard action=Patrol frame=45/120 playing
+ANIM Forklift action=Idle frame=1/1 stopped
